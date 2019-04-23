@@ -163,6 +163,16 @@ public class RedmineStep extends BaseStep implements StepInterface {
 		            throw new KettleException( BaseMessages.getString( PKG, "RedmineStep.Error.ErrorFindingField", realDescriptionfieldName ) );
 				}
 			}
+			
+			if (meta.isRedmineAssignedToInField()) {
+				String realAssignedTofieldName = environmentSubstitute( meta.getRedmineAssignedToField() );
+				data.indexOfAssignedToField = data.inputRowMeta.indexOfValue( ( realAssignedTofieldName ) );
+				if ( data.indexOfAssignedToField < 0 ) {
+		            // The field is unreachable !
+					logError( BaseMessages.getString( PKG, "RedmineStep.Error.ErrorFindingField", realAssignedTofieldName ) );
+		            throw new KettleException( BaseMessages.getString( PKG, "RedmineStep.Error.ErrorFindingField", realAssignedTofieldName ) );
+				}
+			}
 		}
 
 		try {
@@ -195,11 +205,16 @@ public class RedmineStep extends BaseStep implements StepInterface {
 				}
 			}
 			
-			if(meta.getRedmineAssigned() != null) {
-				try {
-					issue.setAssignee(UserFactory.create(Integer.parseInt(meta.getRedmineAssigned())));
-				} catch (NumberFormatException e) {
-					logError( BaseMessages.getString( PKG, "RedmineStep.Error.ErrorAssignedValue", meta.getRedmineAssigned() ) );
+			// assign to
+			if (meta.isRedmineDescriptionInField() && data.indexOfAssignedToField >= 0) {
+				issue.setAssignee(UserFactory.create(data.inputRowMeta.getInteger(r, data.indexOfAssignedToField).intValue()));
+			} else {
+				if(meta.getRedmineAssigned() != null) {
+					try {
+						issue.setAssignee(UserFactory.create(Integer.parseInt(meta.getRedmineAssigned())));
+					} catch (NumberFormatException e) {
+						logError( BaseMessages.getString( PKG, "RedmineStep.Error.ErrorAssignedValue", meta.getRedmineAssigned() ) );
+					}
 				}
 			}
 			
@@ -210,6 +225,7 @@ public class RedmineStep extends BaseStep implements StepInterface {
 			
 		} catch (RedmineException e) {
 			logError( BaseMessages.getString( PKG, "RedmineStep.Error.Api" ), e );
+			throw new KettleException( BaseMessages.getString( PKG, "RedmineStep.Error.Api") );
 		}
 
 		// indicate that processRow() should be called again

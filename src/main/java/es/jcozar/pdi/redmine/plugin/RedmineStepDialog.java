@@ -90,9 +90,9 @@ public class RedmineStepDialog extends BaseStepDialog implements StepDialogInter
   private Map<String, Integer> inputFields;
   private boolean gotPreviousFields;
 
-  private Label wlSubjectInField, wlSubjectField, wlDescriptionInField, wlDescriptionField;
-  private Button  wSubjectInField,wDescriptionInField;
-  private ComboVar wSubjectField,wDescriptionField;
+  private Label wlSubjectInField, wlSubjectField, wlDescriptionInField, wlDescriptionField, wlAssignedToInField, wlAssignedToField;
+  private Button  wSubjectInField,wDescriptionInField,wAssignedToInField;
+  private ComboVar wSubjectField,wDescriptionField,wAssignedToField;
   
   private LabelText wRedmineURL;
   private LabelText wRedmineToken;
@@ -367,6 +367,61 @@ public class RedmineStepDialog extends BaseStepDialog implements StepDialogInter
     fdRedmineAssignedTo.top = new FormAttachment( wRedmineCategory, margin );
     wRedmineAssignedTo.setLayoutData( fdRedmineAssignedTo );
     
+    // assigned to from field check
+    wlAssignedToInField = new Label( shell, SWT.RIGHT );
+    wlAssignedToInField.setText( BaseMessages.getString( PKG, "Redmine.AssignedToInField.Label" ) );
+    props.setLook( wlAssignedToInField );
+    FormData fdlAssignedToInField = new FormData();
+    fdlAssignedToInField.left = new FormAttachment( 0, 0 );
+    fdlAssignedToInField.top = new FormAttachment( wRedmineAssignedTo, margin );
+    fdlAssignedToInField.right = new FormAttachment( middle, -margin );
+    wlAssignedToInField.setLayoutData( fdlAssignedToInField );
+    wAssignedToInField = new Button( shell, SWT.CHECK );
+    props.setLook( wAssignedToInField );
+    FormData fdAssignedToInField = new FormData();
+    fdAssignedToInField.left = new FormAttachment( middle, 0 );
+    fdAssignedToInField.top = new FormAttachment( wRedmineAssignedTo, margin );
+    fdAssignedToInField.right = new FormAttachment( 100, 0 );
+    wAssignedToInField.setLayoutData( fdAssignedToInField );
+    wAssignedToInField.addSelectionListener( new SelectionAdapter() {
+	      public void widgetSelected( SelectionEvent e ) {
+	        meta.setChanged();
+	        activeAssignedToInfield();
+	      }
+	} );
+    
+    // assigned to from field
+    wlAssignedToField = new Label( shell, SWT.RIGHT );
+    wlAssignedToField.setText( BaseMessages.getString( PKG, "Redmine.AssignedToField.Label" ) );
+    props.setLook( wlAssignedToField );
+    FormData fdwlAssignedToField = new FormData();
+    fdwlAssignedToField.left = new FormAttachment( 0, 0 );
+    fdwlAssignedToField.right = new FormAttachment( middle, -margin );
+    fdwlAssignedToField.top = new FormAttachment( wAssignedToInField, margin );
+    wlAssignedToField.setLayoutData( fdwlAssignedToField );
+
+    wAssignedToField = new ComboVar( transMeta, shell, SWT.BORDER | SWT.READ_ONLY );
+    wAssignedToField.setEditable( true );
+    props.setLook( wAssignedToField );
+    wAssignedToField.addModifyListener( lsMod );
+    FormData fdwAssignedToField = new FormData();
+    fdwAssignedToField.left = new FormAttachment( middle, 0 );
+    fdwAssignedToField.top = new FormAttachment( wAssignedToInField, margin );
+    fdwAssignedToField.right = new FormAttachment( 100, -margin );
+    wAssignedToField.setLayoutData( fdwAssignedToField );
+    wAssignedToField.addFocusListener( new FocusListener() {
+    	public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+    	}
+
+    	public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+    		Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
+    		shell.setCursor( busy );
+        	setStreamFields();
+        	shell.setCursor( null );
+        	busy.dispose();
+    	}
+    } );
+    
     
     //
     // Search the fields in the background
@@ -398,7 +453,7 @@ public class RedmineStepDialog extends BaseStepDialog implements StepDialogInter
     wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-    setButtonPositions( new Button[] { wOK, wCancel }, margin, wRedmineAssignedTo );
+    setButtonPositions( new Button[] { wOK, wCancel }, margin, wAssignedToField );
 
     // Add listeners for cancel and OK
     lsCancel = new Listener() {
@@ -430,6 +485,8 @@ public class RedmineStepDialog extends BaseStepDialog implements StepDialogInter
     wDescriptionField.addSelectionListener( lsDef );
     wDescriptionInField.addSelectionListener( lsDef );
     wRedmineAssignedTo.addSelectionListener( lsDef );
+    wAssignedToField.addSelectionListener( lsDef );
+    wAssignedToInField.addSelectionListener( lsDef );
     wRedmineCategory.addSelectionListener( lsDef );
     wRedmineProject.addSelectionListener( lsDef );
 
@@ -490,6 +547,16 @@ public class RedmineStepDialog extends BaseStepDialog implements StepDialogInter
     	wRedmineAssignedTo.setText(meta.getRedmineAssigned());
     }
     
+    if ( meta.getRedmineAssignedToField() != null ) {
+    	wAssignedToField.setText(meta.getRedmineAssignedToField());
+    }
+    
+    wAssignedToInField.setSelection(meta.isRedmineAssignedToInField());
+    
+    if ( meta.getRedmineSubject() != null ) {
+    	wRedmineSubject.setText(meta.getRedmineSubject());
+    }
+    
     if ( meta.getRedmineSubjectField() != null ) {
     	wSubjectField.setText(meta.getRedmineSubjectField());
     }
@@ -508,6 +575,7 @@ public class RedmineStepDialog extends BaseStepDialog implements StepDialogInter
 
     activeSubjectInfield();
     activeDescriptionInfield();
+    activeAssignedToInfield();
   }
 
   /**
@@ -542,6 +610,8 @@ public class RedmineStepDialog extends BaseStepDialog implements StepDialogInter
     meta.setRedmineDescriptionInField(wDescriptionInField.getSelection());
     meta.setRedmineCategory(wRedmineCategory.getText() );
     meta.setRedmineAssigned(wRedmineAssignedTo.getText() );
+    meta.setRedmineAssignedToField(wAssignedToField.getText() );
+    meta.setRedmineAssignedToInField(wAssignedToInField.getSelection());
     
     // close the SWT dialog window
     dispose();
@@ -559,10 +629,18 @@ public class RedmineStepDialog extends BaseStepDialog implements StepDialogInter
   		wRedmineDescription.setEnabled( !wDescriptionInField.getSelection() );
   	}
   	
+  	private void activeAssignedToInfield() {
+  		wAssignedToField.setEnabled( wAssignedToInField.getSelection() );
+  		wlAssignedToField.setEnabled( wAssignedToInField.getSelection() );
+  		wRedmineAssignedTo.setEnabled( !wAssignedToInField.getSelection() );
+  	}
+  	
+  	
   	private void setStreamFields() {
   	    if ( !gotPreviousFields ) {
   	    	String subjectfield = wSubjectField.getText();
   	    	String descriptionfield = wDescriptionField.getText();
+  	    	String assignedtofield = wAssignedToField.getText();
   	    	wSubjectField.removeAll();
   	    	
   	    	final Map<String, Integer> fields = new HashMap<String, Integer>();
@@ -581,6 +659,11 @@ public class RedmineStepDialog extends BaseStepDialog implements StepDialogInter
   	    	wDescriptionField.setItems( entries.toArray( new String[entries.size()] ) );
   	    	if ( descriptionfield != null ) {
   	    		wDescriptionField.setText( descriptionfield );
+  	    	}
+  	    	
+  	    	wAssignedToField.setItems( entries.toArray( new String[entries.size()] ) );
+  	    	if ( assignedtofield != null ) {
+  	    		wAssignedToField.setText( assignedtofield );
   	    	}
   	    	
   	    	gotPreviousFields = true;
