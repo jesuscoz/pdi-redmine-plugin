@@ -66,7 +66,7 @@ import org.w3c.dom.Node;
 
 @Step(id = "Redmine-Plugin", 
       name = "RedmineStep.Name", 
-      description = "RedmineStep.TooltipDesc", 
+      description = "RedmineStep.TooltipDesc",
       image = "es/jcozar/pdi/redmine/plugin/resources/logo.svg", 
       categoryDescription = "i18n:org.pentaho.di.trans.step:BaseStep.Category.Output", 
       i18nPackageName = "es.jcozar.pdi.redmine.plugin")
@@ -197,6 +197,11 @@ public class RedmineStepMeta extends BaseStepMeta implements StepMetaInterface {
 		setRedmineAssignedToInField(false);
 		setRedmineAllowDuplicates(false);
 	}
+	
+	@Override
+	public boolean supportsErrorHandling() {
+	    return true;
+    }
 
 	/**
 	 * Getter for the name of the field added by this step

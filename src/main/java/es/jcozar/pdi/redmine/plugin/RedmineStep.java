@@ -202,6 +202,7 @@ public class RedmineStep extends BaseStep implements StepInterface {
 					issue.setCategory(IssueCategoryFactory.create(Integer.parseInt(meta.getRedmineCategory())));
 				} catch (NumberFormatException e) {
 					logError( BaseMessages.getString( PKG, "RedmineStep.Error.ErrorCategoryValue", meta.getRedmineCategory() ) );
+					putError( getInputRowMeta(), r, 1, e.getMessage(), e.toString(), "-1" );
 				}
 			}
 			
@@ -214,6 +215,7 @@ public class RedmineStep extends BaseStep implements StepInterface {
 						issue.setAssignee(UserFactory.create(Integer.parseInt(meta.getRedmineAssigned())));
 					} catch (NumberFormatException e) {
 						logError( BaseMessages.getString( PKG, "RedmineStep.Error.ErrorAssignedValue", meta.getRedmineAssigned() ) );
+						putError( getInputRowMeta(), r, 1, e.getMessage(), e.toString(), "-1" );
 					}
 				}
 			}
@@ -225,7 +227,7 @@ public class RedmineStep extends BaseStep implements StepInterface {
 			
 		} catch (RedmineException e) {
 			logError( BaseMessages.getString( PKG, "RedmineStep.Error.Api" ), e );
-			throw new KettleException( BaseMessages.getString( PKG, "RedmineStep.Error.Api") );
+			putError( getInputRowMeta(), r, 1, e.getMessage(), e.toString(), "-1" );
 		}
 
 		// indicate that processRow() should be called again
@@ -258,15 +260,9 @@ public class RedmineStep extends BaseStep implements StepInterface {
 		super.dispose(meta, data);
 	}
 	
-	private boolean isDuplicated(RedmineManager mgr, Issue issue) {
+	private boolean isDuplicated(RedmineManager mgr, Issue issue) throws RedmineException {
 		
-		try {
-			List<Issue> result = mgr.getIssueManager().getIssuesBySummary(issue.getProject().getIdentifier(), issue.getSubject());
-			return result != null && !result.isEmpty();
-		} catch (RedmineException e) {
-			logError( BaseMessages.getString( PKG, "RedmineStep.Error.Api" ), e );
-		}		
-		
-		return false;
+		List<Issue> result = mgr.getIssueManager().getIssuesBySummary(issue.getProject().getIdentifier(), issue.getSubject());
+		return result != null && !result.isEmpty();
 	}
 }
