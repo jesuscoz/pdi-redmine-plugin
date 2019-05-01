@@ -220,9 +220,20 @@ public class RedmineStep extends BaseStep implements StepInterface {
 				}
 			}
 			
+			if(isRowLevel()) {
+				logRowlevel("issue project value: " + issue.getProject());
+				logRowlevel("issue subject value: " + issue.getSubject());
+				logRowlevel("issue description value: " + issue.getDescription());
+				logRowlevel("issue category value: " + issue.getCategory());
+				logRowlevel("issue assigned to value: " + issue.getAssignee());
+			}
+			
 			// check allow duplications
 			if (meta.isRedmineAllowDuplicates() || !isDuplicated(mgr, issue)) {
-				mgr.getIssueManager().createIssue(issue);
+				issue = mgr.getIssueManager().createIssue(issue);
+				logBasic(BaseMessages.getString( PKG, "RedmineStep.Info.Success" ), issue.getId());
+			} else {
+				logBasic(BaseMessages.getString( PKG, "RedmineStep.Info.Skip" ));
 			}
 			
 		} catch (RedmineException e) {
