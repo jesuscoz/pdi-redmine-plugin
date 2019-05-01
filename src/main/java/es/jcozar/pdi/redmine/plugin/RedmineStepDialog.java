@@ -43,6 +43,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
@@ -90,8 +91,8 @@ public class RedmineStepDialog extends BaseStepDialog implements StepDialogInter
   private Map<String, Integer> inputFields;
   private boolean gotPreviousFields;
 
-  private Label wlSubjectInField, wlSubjectField, wlDescriptionInField, wlDescriptionField, wlAssignedToInField, wlAssignedToField;
-  private Button  wSubjectInField,wDescriptionInField,wAssignedToInField;
+  private Label wlSubjectInField, wlSubjectField, wlDescriptionInField, wlDescriptionField, wlAssignedToInField, wlAssignedToField, wlAllowDuplications;
+  private Button  wSubjectInField,wDescriptionInField,wAssignedToInField,wAllowDuplications;
   private ComboVar wSubjectField,wDescriptionField,wAssignedToField;
   
   private LabelText wRedmineURL;
@@ -155,6 +156,8 @@ public class RedmineStepDialog extends BaseStepDialog implements StepDialogInter
       }
     };
 
+    
+    
     // ------------------------------------------------------- //
     // SWT code for building the actual settings dialog        //
     // ------------------------------------------------------- //
@@ -165,6 +168,8 @@ public class RedmineStepDialog extends BaseStepDialog implements StepDialogInter
     shell.setText( BaseMessages.getString( PKG, "Redmine.Shell.Title" ) );
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
+
+
 
     // Stepname line
     wlStepname = new Label( shell, SWT.RIGHT );
@@ -185,9 +190,27 @@ public class RedmineStepDialog extends BaseStepDialog implements StepDialogInter
     fdStepname.top = new FormAttachment( 0, margin );
     fdStepname.right = new FormAttachment( 100, 0 );
     wStepname.setLayoutData( fdStepname );
+    
+    
+    // ------------------------- //
+    // settings group            //
+    // ------------------------- //
+    
+    Group gSettings = new Group( shell, SWT.SHADOW_ETCHED_IN );
+    gSettings.setText( BaseMessages.getString( PKG, "Redmine.SettingsGroup.Label" ) );
+    FormLayout SettingsLayout = new FormLayout();
+    SettingsLayout.marginWidth = 3;
+    SettingsLayout.marginHeight = 3;
+    gSettings.setLayout( SettingsLayout );
+    props.setLook( gSettings );
+    FormData fdSettings = new FormData();
+    fdSettings.left = new FormAttachment( 0, 0 );
+    fdSettings.right = new FormAttachment( 100, 0 );
+    fdSettings.top = new FormAttachment( wStepname, margin );
+    gSettings.setLayoutData( fdSettings );
 
     // URL
-    wRedmineURL = new LabelText( shell, BaseMessages.getString( PKG, "Redmine.URL.Label" ), null );
+    wRedmineURL = new LabelText( gSettings, BaseMessages.getString( PKG, "Redmine.URL.Label" ), null );
     props.setLook( wRedmineURL );
     wRedmineURL.addModifyListener( lsMod );
     FormData fdRedmineUrl = new FormData();
@@ -197,7 +220,7 @@ public class RedmineStepDialog extends BaseStepDialog implements StepDialogInter
     wRedmineURL.setLayoutData( fdRedmineUrl );
     
     // TOKEN
-    wRedmineToken = new LabelText( shell, BaseMessages.getString( PKG, "Redmine.Token.Label" ), null );
+    wRedmineToken = new LabelText( gSettings, BaseMessages.getString( PKG, "Redmine.Token.Label" ), null );
     props.setLook( wRedmineToken );
     wRedmineToken.addModifyListener( lsMod );
     FormData fdRedmineToken = new FormData();
@@ -207,7 +230,7 @@ public class RedmineStepDialog extends BaseStepDialog implements StepDialogInter
     wRedmineToken.setLayoutData( fdRedmineToken );
 
     // Project
-    wRedmineProject = new LabelText( shell, BaseMessages.getString( PKG, "Redmine.Project.Label" ), null );
+    wRedmineProject = new LabelText( gSettings, BaseMessages.getString( PKG, "Redmine.Project.Label" ), null );
     props.setLook( wRedmineProject );
     wRedmineProject.addModifyListener( lsMod );
     FormData fdRedmineProject= new FormData();
@@ -216,8 +239,28 @@ public class RedmineStepDialog extends BaseStepDialog implements StepDialogInter
     fdRedmineProject.top = new FormAttachment( wRedmineToken, margin );
     wRedmineProject.setLayoutData( fdRedmineProject );
 
+    
+
+    // ------------------------- //
+    // Issues group              //
+    // ------------------------- //
+    
+    Group gIssues = new Group( shell, SWT.SHADOW_ETCHED_IN );
+    gIssues.setText( BaseMessages.getString( PKG, "Redmine.IssuesGroup.Label" ) );
+    FormLayout IssuesLayout = new FormLayout();
+    IssuesLayout.marginWidth = 3;
+    IssuesLayout.marginHeight = 3;
+    gIssues.setLayout( IssuesLayout );
+    props.setLook( gIssues );
+    FormData fdOutputFields = new FormData();
+    fdOutputFields.left = new FormAttachment( 0, 0 );
+    fdOutputFields.right = new FormAttachment( 100, 0 );
+    fdOutputFields.top = new FormAttachment( gSettings, margin );
+    gIssues.setLayoutData( fdOutputFields );
+    
+    
     // Subject
-    wRedmineSubject = new LabelText( shell, BaseMessages.getString( PKG, "Redmine.Subject.Label" ), null );
+    wRedmineSubject = new LabelText( gIssues, BaseMessages.getString( PKG, "Redmine.Subject.Label" ), null );
     props.setLook( wRedmineSubject );
     wRedmineSubject.addModifyListener( lsMod );
     FormData fdRedmineSubject = new FormData();
@@ -227,7 +270,7 @@ public class RedmineStepDialog extends BaseStepDialog implements StepDialogInter
     wRedmineSubject.setLayoutData( fdRedmineSubject );
     
     // subject from field check
-    wlSubjectInField = new Label( shell, SWT.RIGHT );
+    wlSubjectInField = new Label( gIssues, SWT.RIGHT );
     wlSubjectInField.setText( BaseMessages.getString( PKG, "Redmine.SubjectInField.Label" ) );
     props.setLook( wlSubjectInField );
     FormData fdlSubjectInField = new FormData();
@@ -235,7 +278,7 @@ public class RedmineStepDialog extends BaseStepDialog implements StepDialogInter
     fdlSubjectInField.top = new FormAttachment( wRedmineSubject, margin );
     fdlSubjectInField.right = new FormAttachment( middle, -margin );
     wlSubjectInField.setLayoutData( fdlSubjectInField );
-    wSubjectInField = new Button( shell, SWT.CHECK );
+    wSubjectInField = new Button( gIssues, SWT.CHECK );
     props.setLook( wSubjectInField );
     FormData fdSubjectInField = new FormData();
     fdSubjectInField.left = new FormAttachment( middle, 0 );
@@ -250,7 +293,7 @@ public class RedmineStepDialog extends BaseStepDialog implements StepDialogInter
 	} );
     
     // subject from field
-    wlSubjectField = new Label( shell, SWT.RIGHT );
+    wlSubjectField = new Label( gIssues, SWT.RIGHT );
     wlSubjectField.setText( BaseMessages.getString( PKG, "Redmine.SubjectField.Label" ) );
     props.setLook( wlSubjectField );
     FormData fdlUrlField = new FormData();
@@ -259,7 +302,7 @@ public class RedmineStepDialog extends BaseStepDialog implements StepDialogInter
     fdlUrlField.top = new FormAttachment( wSubjectInField, margin );
     wlSubjectField.setLayoutData( fdlUrlField );
 
-    wSubjectField = new ComboVar( transMeta, shell, SWT.BORDER | SWT.READ_ONLY );
+    wSubjectField = new ComboVar( transMeta, gIssues, SWT.BORDER | SWT.READ_ONLY );
     wSubjectField.setEditable( true );
     props.setLook( wSubjectField );
     wSubjectField.addModifyListener( lsMod );
@@ -282,7 +325,7 @@ public class RedmineStepDialog extends BaseStepDialog implements StepDialogInter
     } );
 
     // Description
-    wRedmineDescription = new LabelText( shell, BaseMessages.getString( PKG, "Redmine.Description.Label" ), null );
+    wRedmineDescription = new LabelText( gIssues, BaseMessages.getString( PKG, "Redmine.Description.Label" ), null );
     props.setLook( wRedmineDescription );
     wRedmineDescription.addModifyListener( lsMod );
     FormData fdRedmineDescription = new FormData();
@@ -293,7 +336,7 @@ public class RedmineStepDialog extends BaseStepDialog implements StepDialogInter
 
     
     // description from field check
-    wlDescriptionInField = new Label( shell, SWT.RIGHT );
+    wlDescriptionInField = new Label( gIssues, SWT.RIGHT );
     wlDescriptionInField.setText( BaseMessages.getString( PKG, "Redmine.DescriptionInField.Label" ) );
     props.setLook( wlDescriptionInField );
     FormData fdlDescriptionInField = new FormData();
@@ -301,7 +344,7 @@ public class RedmineStepDialog extends BaseStepDialog implements StepDialogInter
     fdlDescriptionInField.top = new FormAttachment( wRedmineDescription, margin );
     fdlDescriptionInField.right = new FormAttachment( middle, -margin );
     wlDescriptionInField.setLayoutData( fdlDescriptionInField );
-    wDescriptionInField = new Button( shell, SWT.CHECK );
+    wDescriptionInField = new Button( gIssues, SWT.CHECK );
     props.setLook( wDescriptionInField );
     FormData fdDescriptionInField = new FormData();
     fdDescriptionInField.left = new FormAttachment( middle, 0 );
@@ -316,7 +359,7 @@ public class RedmineStepDialog extends BaseStepDialog implements StepDialogInter
 	} );
     
     // description from field
-    wlDescriptionField = new Label( shell, SWT.RIGHT );
+    wlDescriptionField = new Label( gIssues, SWT.RIGHT );
     wlDescriptionField.setText( BaseMessages.getString( PKG, "Redmine.DescriptionField.Label" ) );
     props.setLook( wlDescriptionField );
     FormData fdwlDescriptionField = new FormData();
@@ -325,7 +368,7 @@ public class RedmineStepDialog extends BaseStepDialog implements StepDialogInter
     fdwlDescriptionField.top = new FormAttachment( wDescriptionInField, margin );
     wlDescriptionField.setLayoutData( fdwlDescriptionField );
 
-    wDescriptionField = new ComboVar( transMeta, shell, SWT.BORDER | SWT.READ_ONLY );
+    wDescriptionField = new ComboVar( transMeta, gIssues, SWT.BORDER | SWT.READ_ONLY );
     wDescriptionField.setEditable( true );
     props.setLook( wDescriptionField );
     wDescriptionField.addModifyListener( lsMod );
@@ -348,7 +391,7 @@ public class RedmineStepDialog extends BaseStepDialog implements StepDialogInter
     } );
     
     // CATEGORY
-    wRedmineCategory = new LabelText( shell, BaseMessages.getString( PKG, "Redmine.Category.Label" ), null );
+    wRedmineCategory = new LabelText( gIssues, BaseMessages.getString( PKG, "Redmine.Category.Label" ), null );
     props.setLook( wRedmineCategory );
     wRedmineCategory.addModifyListener( lsMod );
     FormData fdRedmineCategory = new FormData();
@@ -358,7 +401,7 @@ public class RedmineStepDialog extends BaseStepDialog implements StepDialogInter
     wRedmineCategory.setLayoutData( fdRedmineCategory );
     
     // ASSIGNED TO
-    wRedmineAssignedTo = new LabelText( shell, BaseMessages.getString( PKG, "Redmine.AssignedTo.Label" ), null );
+    wRedmineAssignedTo = new LabelText( gIssues, BaseMessages.getString( PKG, "Redmine.AssignedTo.Label" ), null );
     props.setLook( wRedmineAssignedTo );
     wRedmineAssignedTo.addModifyListener( lsMod );
     FormData fdRedmineAssignedTo = new FormData();
@@ -368,7 +411,7 @@ public class RedmineStepDialog extends BaseStepDialog implements StepDialogInter
     wRedmineAssignedTo.setLayoutData( fdRedmineAssignedTo );
     
     // assigned to from field check
-    wlAssignedToInField = new Label( shell, SWT.RIGHT );
+    wlAssignedToInField = new Label( gIssues, SWT.RIGHT );
     wlAssignedToInField.setText( BaseMessages.getString( PKG, "Redmine.AssignedToInField.Label" ) );
     props.setLook( wlAssignedToInField );
     FormData fdlAssignedToInField = new FormData();
@@ -376,7 +419,7 @@ public class RedmineStepDialog extends BaseStepDialog implements StepDialogInter
     fdlAssignedToInField.top = new FormAttachment( wRedmineAssignedTo, margin );
     fdlAssignedToInField.right = new FormAttachment( middle, -margin );
     wlAssignedToInField.setLayoutData( fdlAssignedToInField );
-    wAssignedToInField = new Button( shell, SWT.CHECK );
+    wAssignedToInField = new Button( gIssues, SWT.CHECK );
     props.setLook( wAssignedToInField );
     FormData fdAssignedToInField = new FormData();
     fdAssignedToInField.left = new FormAttachment( middle, 0 );
@@ -391,7 +434,7 @@ public class RedmineStepDialog extends BaseStepDialog implements StepDialogInter
 	} );
     
     // assigned to from field
-    wlAssignedToField = new Label( shell, SWT.RIGHT );
+    wlAssignedToField = new Label( gIssues, SWT.RIGHT );
     wlAssignedToField.setText( BaseMessages.getString( PKG, "Redmine.AssignedToField.Label" ) );
     props.setLook( wlAssignedToField );
     FormData fdwlAssignedToField = new FormData();
@@ -400,7 +443,7 @@ public class RedmineStepDialog extends BaseStepDialog implements StepDialogInter
     fdwlAssignedToField.top = new FormAttachment( wAssignedToInField, margin );
     wlAssignedToField.setLayoutData( fdwlAssignedToField );
 
-    wAssignedToField = new ComboVar( transMeta, shell, SWT.BORDER | SWT.READ_ONLY );
+    wAssignedToField = new ComboVar( transMeta, gIssues, SWT.BORDER | SWT.READ_ONLY );
     wAssignedToField.setEditable( true );
     props.setLook( wAssignedToField );
     wAssignedToField.addModifyListener( lsMod );
@@ -421,6 +464,43 @@ public class RedmineStepDialog extends BaseStepDialog implements StepDialogInter
         	busy.dispose();
     	}
     } );
+    
+    
+
+    // ------------------------- //
+    // Search group              //
+    // ------------------------- //
+    
+    Group gSearch = new Group( shell, SWT.SHADOW_ETCHED_IN );
+    gSearch.setText( BaseMessages.getString( PKG, "Redmine.SearchGroup.Label" ) );
+    FormLayout SearchLayout = new FormLayout();
+    SearchLayout.marginWidth = 3;
+    SearchLayout.marginHeight = 3;
+    gSearch.setLayout( SearchLayout );
+    props.setLook( gSearch );
+    FormData fdSearchFields = new FormData();
+    fdSearchFields.left = new FormAttachment( 0, 0 );
+    fdSearchFields.right = new FormAttachment( 100, 0 );
+    fdSearchFields.top = new FormAttachment( gIssues, margin );
+    gSearch.setLayoutData( fdSearchFields );
+    
+    
+    // allow duplications check
+    wlAllowDuplications = new Label( gSearch, SWT.RIGHT );
+    wlAllowDuplications.setText( BaseMessages.getString( PKG, "Redmine.AllowDuplications.Label" ) );
+    props.setLook( wlAllowDuplications );
+    FormData fdlAllowDuplications = new FormData();
+    fdlAllowDuplications.left = new FormAttachment( 0, 0 );
+    fdlAllowDuplications.top = new FormAttachment( gSearch, margin );
+    fdlAllowDuplications.right = new FormAttachment( middle, -margin );
+    wlAllowDuplications.setLayoutData( fdlAllowDuplications );
+    wAllowDuplications = new Button( gSearch, SWT.CHECK );
+    props.setLook( wAllowDuplications );
+    FormData fdAllowDuplications = new FormData();
+    fdAllowDuplications.left = new FormAttachment( middle, 0 );
+    fdAllowDuplications.top = new FormAttachment( gSearch, margin );
+    fdAllowDuplications.right = new FormAttachment( 100, 0 );
+    wAllowDuplications.setLayoutData( fdAllowDuplications );
     
     
     //
@@ -453,7 +533,7 @@ public class RedmineStepDialog extends BaseStepDialog implements StepDialogInter
     wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-    setButtonPositions( new Button[] { wOK, wCancel }, margin, wAssignedToField );
+    setButtonPositions( new Button[] { wOK, wCancel }, margin, gSearch );
 
     // Add listeners for cancel and OK
     lsCancel = new Listener() {
@@ -572,6 +652,8 @@ public class RedmineStepDialog extends BaseStepDialog implements StepDialogInter
     }
     
     wDescriptionInField.setSelection(meta.isRedmineDescriptionInField());
+    
+    wAllowDuplications.setSelection(meta.isRedmineAllowDuplicates());
 
     activeSubjectInfield();
     activeDescriptionInfield();
@@ -612,6 +694,7 @@ public class RedmineStepDialog extends BaseStepDialog implements StepDialogInter
     meta.setRedmineAssigned(wRedmineAssignedTo.getText() );
     meta.setRedmineAssignedToField(wAssignedToField.getText() );
     meta.setRedmineAssignedToInField(wAssignedToInField.getSelection());
+    meta.setRedmineAllowDuplicates(wAllowDuplications.getSelection());
     
     // close the SWT dialog window
     dispose();
