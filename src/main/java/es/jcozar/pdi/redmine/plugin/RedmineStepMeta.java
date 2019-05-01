@@ -467,16 +467,16 @@ public class RedmineStepMeta extends BaseStepMeta implements StepMetaInterface {
 			redmineToken = rep.getStepAttributeString(id_step, "redmineToken"); //$NON-NLS-1$
 			redmineSubject = rep.getStepAttributeString(id_step, "redmineSubject"); //$NON-NLS-1$
 			redmineSubjectField = rep.getStepAttributeString(id_step, "redmineSubjectField"); //$NON-NLS-1$
-			redmineSubjectInField = "Y".equalsIgnoreCase(rep.getStepAttributeString(id_step, "redmineSubjectInField")); //$NON-NLS-1$
+			redmineSubjectInField = rep.getStepAttributeBoolean(id_step, "redmineSubjectInField"); //$NON-NLS-1$
 			redmineDescription = rep.getStepAttributeString(id_step, "redmineDescription"); //$NON-NLS-1$
 			redmineDescriptionField = rep.getStepAttributeString(id_step, "redmineDescriptionField"); //$NON-NLS-1$
-			redmineDescriptionInField = "Y".equalsIgnoreCase(rep.getStepAttributeString(id_step, "redmineDescriptionInField")); //$NON-NLS-1$
+			redmineDescriptionInField = rep.getStepAttributeBoolean(id_step, "redmineDescriptionInField"); //$NON-NLS-1$
 			redmineAssigned = rep.getStepAttributeString(id_step, "redmineAssigned"); //$NON-NLS-1$
 			redmineAssignedToField = rep.getStepAttributeString(id_step, "redmineAssignedToField"); //$NON-NLS-1$
-			redmineAssignedToInField = "Y".equalsIgnoreCase(rep.getStepAttributeString(id_step, "redmineAssignedToInField")); //$NON-NLS-1$
+			redmineAssignedToInField = rep.getStepAttributeBoolean(id_step, "redmineAssignedToInField"); //$NON-NLS-1$
 			redmineCategory = rep.getStepAttributeString(id_step, "redmineCategory"); //$NON-NLS-1$
 			redmineProject = rep.getStepAttributeString(id_step, "redmineProject"); //$NON-NLS-1$
-			redmineAllowDuplicates = "Y".equalsIgnoreCase(rep.getStepAttributeString(id_step, "redmineAllowDuplicates")); //$NON-NLS-1$
+			redmineAllowDuplicates = rep.getStepAttributeBoolean(id_step, "redmineAllowDuplicates"); //$NON-NLS-1$
 
 		} catch (Exception e) {
 			throw new KettleException("Unable to load step from repository", e);
