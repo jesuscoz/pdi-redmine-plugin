@@ -207,7 +207,7 @@ public class RedmineStep extends BaseStep implements StepInterface {
 			}
 			
 			// assign to
-			if (meta.isRedmineDescriptionInField() && data.indexOfAssignedToField >= 0) {
+			if (meta.isRedmineAssignedToInField() && data.indexOfAssignedToField >= 0) {
 				issue.setAssignee(UserFactory.create(data.inputRowMeta.getInteger(r, data.indexOfAssignedToField).intValue()));
 			} else {
 				if(meta.getRedmineAssigned() != null) {
