@@ -22,7 +22,9 @@
 
 package es.jcozar.pdi.redmine.plugin;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.i18n.BaseMessages;
@@ -229,7 +231,7 @@ public class RedmineStep extends BaseStep implements StepInterface {
 			}
 			
 			// check allow duplications
-			if (meta.isRedmineAllowDuplicates() || !isDuplicated(mgr, issue)) {
+			if (meta.isRedmineAllowDuplicates() || !isDuplicated(meta, mgr, issue)) {
 				issue = mgr.getIssueManager().createIssue(issue);
 				logBasic(BaseMessages.getString( PKG, "RedmineStep.Info.Success" ), issue.getId());
 			} else {
@@ -271,9 +273,23 @@ public class RedmineStep extends BaseStep implements StepInterface {
 		super.dispose(meta, data);
 	}
 	
-	private boolean isDuplicated(RedmineManager mgr, Issue issue) throws RedmineException {
+	private boolean isDuplicated(RedmineStepMeta meta, RedmineManager mgr, Issue issue) throws RedmineException {
 		
-		List<Issue> result = mgr.getIssueManager().getIssuesBySummary(issue.getProject().getIdentifier(), issue.getSubject());
+		Map<String, String> parameters = new HashMap<String, String>();
+		
+		parameters.put("project_id", issue.getProject().getIdentifier());
+		
+		if (meta.isRedmineSearchFieldSubject()) {
+			parameters.put("subject", issue.getSubject());
+		}
+		
+		if (meta.isRedmineSearchFieldStatus()) {
+			parameters.put("status_id", "1");
+		}
+		
+		//List<Issue> result = mgr.getIssueManager().getIssuesBySummary(issue.getProject().getIdentifier(), issue.getSubject());
+		List<Issue> result = mgr.getIssueManager().getIssues(parameters);
+		
 		return result != null && !result.isEmpty();
 	}
 }

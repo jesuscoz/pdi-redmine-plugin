@@ -128,6 +128,12 @@ public class RedmineStepMeta extends BaseStepMeta implements StepMetaInterface {
 	@Injection(name = "REDMINE_ALLOW_DUPLICATES")
 	private boolean redmineAllowDuplicates;
 
+	@Injection(name = "REDMINE_SEARCH_FIELD_SUBJECT")
+	private boolean redmineSearchFieldSubject;
+	
+	@Injection(name = "REDMINE_SEARCH_FIELD_STATUS")
+	private boolean redmineSearchFieldStatus;
+	
 	/**
 	 * Constructor should call super() to make sure the base class has a chance to
 	 * initialize properly.
@@ -196,6 +202,8 @@ public class RedmineStepMeta extends BaseStepMeta implements StepMetaInterface {
 		setRedmineAssignedToField("");
 		setRedmineAssignedToInField(false);
 		setRedmineAllowDuplicates(false);
+		setRedmineSearchFieldSubject(true);
+		setRedmineSearchFieldStatus(true);
 	}
 	
 	@Override
@@ -333,6 +341,22 @@ public class RedmineStepMeta extends BaseStepMeta implements StepMetaInterface {
 		this.redmineAllowDuplicates = redmineAllowDuplicates;
 	}
 
+	public boolean isRedmineSearchFieldSubject() {
+		return redmineSearchFieldSubject;
+	}
+
+	public void setRedmineSearchFieldSubject(boolean redmineSearchFieldSubject) {
+		this.redmineSearchFieldSubject = redmineSearchFieldSubject;
+	}
+
+	public boolean isRedmineSearchFieldStatus() {
+		return redmineSearchFieldStatus;
+	}
+
+	public void setRedmineSearchFieldStatus(boolean redmineSearchFieldStatus) {
+		this.redmineSearchFieldStatus = redmineSearchFieldStatus;
+	}
+
 	/**
 	 * This method is used when a step is duplicated in Spoon. It needs to return a
 	 * deep copy of this step meta object. Be sure to create proper deep copies if
@@ -377,6 +401,8 @@ public class RedmineStepMeta extends BaseStepMeta implements StepMetaInterface {
 		xml.append(XMLHandler.addTagValue("redmineCategory", redmineCategory));
 		xml.append(XMLHandler.addTagValue("redmineProject", redmineProject));
 		xml.append(XMLHandler.addTagValue("redmineAllowDuplicates", redmineAllowDuplicates));
+		xml.append(XMLHandler.addTagValue("redmineSearchFieldStatus", redmineSearchFieldStatus));
+		xml.append(XMLHandler.addTagValue("redmineSearchFieldSubject", redmineSearchFieldSubject));
 
 		return xml.toString();
 	}
@@ -408,8 +434,9 @@ public class RedmineStepMeta extends BaseStepMeta implements StepMetaInterface {
 			setRedmineAssignedToInField("Y".equalsIgnoreCase(XMLHandler.getNodeValue(XMLHandler.getSubNode(stepnode, "redmineAssignedToInField"))));
 			setRedmineCategory(XMLHandler.getNodeValue(XMLHandler.getSubNode(stepnode, "redmineCategory")));
 			setRedmineProject(XMLHandler.getNodeValue(XMLHandler.getSubNode(stepnode, "redmineProject")));
-			setRedmineAllowDuplicates("Y".equalsIgnoreCase(
-					XMLHandler.getNodeValue(XMLHandler.getSubNode(stepnode, "redmineAllowDuplicates"))));
+			setRedmineAllowDuplicates("Y".equalsIgnoreCase(XMLHandler.getNodeValue(XMLHandler.getSubNode(stepnode, "redmineAllowDuplicates"))));
+			setRedmineSearchFieldStatus("Y".equalsIgnoreCase(XMLHandler.getNodeValue(XMLHandler.getSubNode(stepnode, "redmineSearchFieldStatus"))));
+			setRedmineSearchFieldSubject("Y".equalsIgnoreCase(XMLHandler.getNodeValue(XMLHandler.getSubNode(stepnode, "redmineSearchFieldSubject"))));
 
 		} catch (Exception e) {
 			throw new KettleXMLException("Redmine plugin unable to read step info from XML node", e);
@@ -444,6 +471,8 @@ public class RedmineStepMeta extends BaseStepMeta implements StepMetaInterface {
 			rep.saveStepAttribute(id_transformation, id_step, "redmineCategory", redmineCategory); //$NON-NLS-1$
 			rep.saveStepAttribute(id_transformation, id_step, "redmineProject", redmineProject); //$NON-NLS-1$
 			rep.saveStepAttribute(id_transformation, id_step, "redmineAllowDuplicates", redmineAllowDuplicates); //$NON-NLS-1$
+			rep.saveStepAttribute(id_transformation, id_step, "redmineSearchFieldStatus", redmineSearchFieldStatus); //$NON-NLS-1$
+			rep.saveStepAttribute(id_transformation, id_step, "redmineSearchFieldSubject", redmineSearchFieldSubject); //$NON-NLS-1$
 
 		} catch (Exception e) {
 			throw new KettleException("Unable to save step into repository: " + id_step, e);
@@ -477,6 +506,8 @@ public class RedmineStepMeta extends BaseStepMeta implements StepMetaInterface {
 			redmineCategory = rep.getStepAttributeString(id_step, "redmineCategory"); //$NON-NLS-1$
 			redmineProject = rep.getStepAttributeString(id_step, "redmineProject"); //$NON-NLS-1$
 			redmineAllowDuplicates = rep.getStepAttributeBoolean(id_step, "redmineAllowDuplicates"); //$NON-NLS-1$
+			redmineSearchFieldStatus = rep.getStepAttributeBoolean(id_step, "redmineSearchFieldStatus"); //$NON-NLS-1$
+			redmineSearchFieldSubject = rep.getStepAttributeBoolean(id_step, "redmineSearchFieldSubject"); //$NON-NLS-1$
 
 		} catch (Exception e) {
 			throw new KettleException("Unable to load step from repository", e);
