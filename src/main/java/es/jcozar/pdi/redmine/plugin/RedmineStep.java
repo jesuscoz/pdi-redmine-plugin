@@ -22,6 +22,8 @@
 
 package es.jcozar.pdi.redmine.plugin;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -175,6 +177,16 @@ public class RedmineStep extends BaseStep implements StepInterface {
 		            throw new KettleException( BaseMessages.getString( PKG, "RedmineStep.Error.ErrorFindingField", realAssignedTofieldName ) );
 				}
 			}
+			
+			if (meta.isRedmineAttachFile()) {
+				String realAttachedFilefieldName = environmentSubstitute( meta.getRedmineAttachFileName() );
+				data.indexOfAttachedFileFilename = data.inputRowMeta.indexOfValue( ( realAttachedFilefieldName ) );
+				if ( data.indexOfAttachedFileFilename < 0 ) {
+		            // The field is unreachable !
+					logError( BaseMessages.getString( PKG, "RedmineStep.Error.ErrorFindingField", realAttachedFilefieldName ) );
+		            throw new KettleException( BaseMessages.getString( PKG, "RedmineStep.Error.ErrorFindingField", realAttachedFilefieldName ) );
+				}
+			}
 		}
 
 		try {
@@ -234,6 +246,15 @@ public class RedmineStep extends BaseStep implements StepInterface {
 			if (meta.isRedmineAllowDuplicates() || !isDuplicated(meta, mgr, issue)) {
 				issue = mgr.getIssueManager().createIssue(issue);
 				logBasic(BaseMessages.getString( PKG, "RedmineStep.Info.Success" ), issue.getId());
+				
+				if (meta.isRedmineAttachFile()) {
+					logRowlevel("adding attached document to issue");
+					addAttachedContent(issue, 
+									   mgr,
+									   data.inputRowMeta.getString(r, data.indexOfAttachedFileFilename), 
+									   meta.getRedmineAttachFileContent());
+				}
+				
 			} else {
 				logBasic(BaseMessages.getString( PKG, "RedmineStep.Info.Skip" ));
 			}
@@ -291,5 +312,17 @@ public class RedmineStep extends BaseStep implements StepInterface {
 		List<Issue> result = mgr.getIssueManager().getIssues(parameters);
 		
 		return result != null && !result.isEmpty();
+	}
+	
+	private void addAttachedContent(Issue issue, RedmineManager mgr,  String filename, String fileContent ) throws RedmineException {
+		
+		try {
+			logRowlevel("attached document url: " + filename);
+			logRowlevel("attached document content type: " + fileContent);
+			File attachmentFile = new File(filename);
+			mgr.getAttachmentManager().addAttachmentToIssue(issue.getId(), attachmentFile, fileContent);
+		} catch (IOException e) {
+			throw new RedmineException("Error al subir adjunto a la incidencia", e);
+		}
 	}
 }

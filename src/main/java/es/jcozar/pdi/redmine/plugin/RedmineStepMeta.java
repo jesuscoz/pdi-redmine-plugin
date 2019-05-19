@@ -125,6 +125,22 @@ public class RedmineStepMeta extends BaseStepMeta implements StepMetaInterface {
 	@Injection(name = "REDMINE_CATEGORY")
 	private String redmineCategory;
 
+	/*
+	 * ATTACH FILE 
+	 */
+	@Injection(name = "REDMINE_ATTACH")
+	private boolean redmineAttachFile;
+
+	@Injection(name = "REDMINE_ATTACH_FILE_NAME")
+	private String redmineAttachFileName;
+
+	@Injection(name = "REDMINE_ATTACH_FILE_CONTENT")
+	private String redmineAttachFileContent;
+
+	
+	
+	
+	
 	@Injection(name = "REDMINE_ALLOW_DUPLICATES")
 	private boolean redmineAllowDuplicates;
 
@@ -204,6 +220,9 @@ public class RedmineStepMeta extends BaseStepMeta implements StepMetaInterface {
 		setRedmineAllowDuplicates(false);
 		setRedmineSearchFieldSubject(true);
 		setRedmineSearchFieldStatus(true);
+		setRedmineAttachFile(false);
+		setRedmineAttachFileContent("");
+		setRedmineAttachFileName("");
 	}
 	
 	@Override
@@ -357,6 +376,30 @@ public class RedmineStepMeta extends BaseStepMeta implements StepMetaInterface {
 		this.redmineSearchFieldStatus = redmineSearchFieldStatus;
 	}
 
+	public boolean isRedmineAttachFile() {
+		return redmineAttachFile;
+	}
+
+	public void setRedmineAttachFile(boolean redmineAttachFile) {
+		this.redmineAttachFile = redmineAttachFile;
+	}
+
+	public String getRedmineAttachFileName() {
+		return redmineAttachFileName;
+	}
+
+	public void setRedmineAttachFileName(String redmineAttachFileName) {
+		this.redmineAttachFileName = redmineAttachFileName;
+	}
+
+	public String getRedmineAttachFileContent() {
+		return redmineAttachFileContent;
+	}
+
+	public void setRedmineAttachFileContent(String redmineAttachFileContent) {
+		this.redmineAttachFileContent = redmineAttachFileContent;
+	}
+
 	/**
 	 * This method is used when a step is duplicated in Spoon. It needs to return a
 	 * deep copy of this step meta object. Be sure to create proper deep copies if
@@ -403,7 +446,10 @@ public class RedmineStepMeta extends BaseStepMeta implements StepMetaInterface {
 		xml.append(XMLHandler.addTagValue("redmineAllowDuplicates", redmineAllowDuplicates));
 		xml.append(XMLHandler.addTagValue("redmineSearchFieldStatus", redmineSearchFieldStatus));
 		xml.append(XMLHandler.addTagValue("redmineSearchFieldSubject", redmineSearchFieldSubject));
-
+		xml.append(XMLHandler.addTagValue("redmineAttachFile", redmineAttachFile));
+		xml.append(XMLHandler.addTagValue("redmineAttachFileName", redmineAttachFileName));
+		xml.append(XMLHandler.addTagValue("redmineAttachFileContent", redmineAttachFileContent));
+		
 		return xml.toString();
 	}
 
@@ -437,7 +483,10 @@ public class RedmineStepMeta extends BaseStepMeta implements StepMetaInterface {
 			setRedmineAllowDuplicates("Y".equalsIgnoreCase(XMLHandler.getNodeValue(XMLHandler.getSubNode(stepnode, "redmineAllowDuplicates"))));
 			setRedmineSearchFieldStatus("Y".equalsIgnoreCase(XMLHandler.getNodeValue(XMLHandler.getSubNode(stepnode, "redmineSearchFieldStatus"))));
 			setRedmineSearchFieldSubject("Y".equalsIgnoreCase(XMLHandler.getNodeValue(XMLHandler.getSubNode(stepnode, "redmineSearchFieldSubject"))));
-
+			setRedmineAttachFile("Y".equalsIgnoreCase(XMLHandler.getNodeValue(XMLHandler.getSubNode(stepnode, "redmineAttachFile"))));
+			setRedmineAttachFileName(XMLHandler.getNodeValue(XMLHandler.getSubNode(stepnode, "redmineAttachFileName")));
+			setRedmineAttachFileContent(XMLHandler.getNodeValue(XMLHandler.getSubNode(stepnode, "redmineAttachFileContent")));
+			
 		} catch (Exception e) {
 			throw new KettleXMLException("Redmine plugin unable to read step info from XML node", e);
 		}
@@ -473,7 +522,10 @@ public class RedmineStepMeta extends BaseStepMeta implements StepMetaInterface {
 			rep.saveStepAttribute(id_transformation, id_step, "redmineAllowDuplicates", redmineAllowDuplicates); //$NON-NLS-1$
 			rep.saveStepAttribute(id_transformation, id_step, "redmineSearchFieldStatus", redmineSearchFieldStatus); //$NON-NLS-1$
 			rep.saveStepAttribute(id_transformation, id_step, "redmineSearchFieldSubject", redmineSearchFieldSubject); //$NON-NLS-1$
-
+			rep.saveStepAttribute(id_transformation, id_step, "redmineAttachFile", redmineAttachFile); //$NON-NLS-1$
+			rep.saveStepAttribute(id_transformation, id_step, "redmineAttachFileName", redmineAttachFileName); //$NON-NLS-1$
+			rep.saveStepAttribute(id_transformation, id_step, "redmineAttachFileContent", redmineAttachFileContent); //$NON-NLS-1$
+			
 		} catch (Exception e) {
 			throw new KettleException("Unable to save step into repository: " + id_step, e);
 		}
@@ -508,7 +560,10 @@ public class RedmineStepMeta extends BaseStepMeta implements StepMetaInterface {
 			redmineAllowDuplicates = rep.getStepAttributeBoolean(id_step, "redmineAllowDuplicates"); //$NON-NLS-1$
 			redmineSearchFieldStatus = rep.getStepAttributeBoolean(id_step, "redmineSearchFieldStatus"); //$NON-NLS-1$
 			redmineSearchFieldSubject = rep.getStepAttributeBoolean(id_step, "redmineSearchFieldSubject"); //$NON-NLS-1$
-
+			redmineAttachFile = rep.getStepAttributeBoolean(id_step, "redmineAttachFile"); //$NON-NLS-1$
+			redmineAttachFileName = rep.getStepAttributeString(id_step, "redmineAttachFileName"); //$NON-NLS-1$
+			redmineAttachFileContent = rep.getStepAttributeString(id_step, "redmineAttachFileContent"); //$NON-NLS-1$
+			
 		} catch (Exception e) {
 			throw new KettleException("Unable to load step from repository", e);
 		}

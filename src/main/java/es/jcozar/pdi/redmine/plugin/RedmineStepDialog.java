@@ -99,14 +99,15 @@ public class RedmineStepDialog extends BaseStepDialog implements StepDialogInter
   private CTabFolder wTabFolder;
 
   // checkboxs
-  private Button wSubjectInField,wDescriptionInField,wAssignedToInField,wAllowDuplications,wSearchFieldSubject,wSearchFieldStatus;
+  private Button wSubjectInField,wDescriptionInField,wAssignedToInField,wAllowDuplications,
+  				 wSearchFieldSubject,wSearchFieldStatus,wAttachedFileCheckField;
   
   // combos
-  private Label wlSubjectField, wlDescriptionField, wlAssignedToField;
-  private ComboVar wSubjectField,wDescriptionField,wAssignedToField;
+  private Label wlSubjectField, wlDescriptionField, wlAssignedToField, wAttachFilenameFieldLabel;
+  private ComboVar wSubjectField,wDescriptionField,wAssignedToField, wAttachFilenameField;
   
   private LabelText wRedmineURL, wRedmineToken, wRedmineProject, wRedmineCategory, 
-                    wRedmineAssignedTo, wRedmineSubject, wRedmineDescription;
+                    wRedmineAssignedTo, wRedmineSubject, wRedmineDescription, wAttachContentType;
 
   /**
    * The constructor should simply invoke super() and save the incoming meta
@@ -370,6 +371,59 @@ public class RedmineStepDialog extends BaseStepDialog implements StepDialogInter
     	}
     } );
     
+    
+    // ------------------------- //
+    // Attached file group       //
+    // ------------------------- //
+    Group gAttached = SwtUtils.addGroup(generalTab, BaseMessages.getString( PKG, "Redmine.AttachedFileGroup.Label" ), gIssues);
+
+
+    // attached file check
+    wAttachedFileCheckField = SwtUtils.addCheckBox(gAttached, BaseMessages.getString( PKG, "Redmine.AttachedFileCheck.Label" ), wAssignedToField); 
+    wAttachedFileCheckField.addSelectionListener( new SelectionAdapter() {
+	      public void widgetSelected( SelectionEvent e ) {
+	        meta.setChanged();
+	        activeAttachedFile();
+	      }
+	} );
+    
+    // attached file content field
+    wAttachContentType = SwtUtils.addLabelText(gAttached, BaseMessages.getString( PKG, "Redmine.AttachedFile.Content.Label" ), wAttachedFileCheckField);
+    wAttachContentType.addModifyListener( lsMod );
+    
+    
+    // attached file filename field
+    wAttachFilenameFieldLabel = new Label( gAttached, SWT.RIGHT );
+    wAttachFilenameFieldLabel.setText( BaseMessages.getString( PKG, "Redmine.AttachedFile.Filename.Label" ) );
+    props.setLook( wAttachFilenameFieldLabel );
+    FormData fdwAttachFilenameFieldLabel = new FormData();
+    fdwAttachFilenameFieldLabel.left = new FormAttachment( 0, 0 );
+    fdwAttachFilenameFieldLabel.right = new FormAttachment( middle, -margin );
+    fdwAttachFilenameFieldLabel.top = new FormAttachment( wAttachContentType, margin );
+    wAttachFilenameFieldLabel.setLayoutData( fdwAttachFilenameFieldLabel );
+
+    wAttachFilenameField = new ComboVar( transMeta, gAttached, SWT.BORDER | SWT.READ_ONLY );
+    wAssignedToField.setEditable( true );
+    props.setLook( wAttachFilenameField );
+    wAttachFilenameField.addModifyListener( lsMod );
+    FormData fdwAttachFilenameField = new FormData();
+    fdwAttachFilenameField.left = new FormAttachment( middle, 0 );
+    fdwAttachFilenameField.top = new FormAttachment( wAttachContentType, margin );
+    fdwAttachFilenameField.right = new FormAttachment( 100, -margin );
+    wAttachFilenameField.setLayoutData( fdwAttachFilenameField );
+    wAttachFilenameField.addFocusListener( new FocusListener() {
+    	public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+    	}
+
+    	public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+    		Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
+    		shell.setCursor( busy );
+        	setStreamFields();
+        	shell.setCursor( null );
+        	busy.dispose();
+    	}
+    } );
+    
     // ------------------------- //
     // search tab                //
     // ------------------------- //
@@ -557,6 +611,16 @@ public class RedmineStepDialog extends BaseStepDialog implements StepDialogInter
     wSearchFieldStatus.setSelection(meta.isRedmineSearchFieldStatus());
     wSearchFieldSubject.setSelection(meta.isRedmineSearchFieldSubject());
 
+    wAttachedFileCheckField.setSelection(meta.isRedmineAttachFile());
+    
+    if ( meta.getRedmineAttachFileContent() != null ) {
+    	wAttachContentType.setText(meta.getRedmineAttachFileContent());
+    }
+    
+    if ( meta.getRedmineAttachFileName() != null ) {
+    	wAttachFilenameField.setText(meta.getRedmineAttachFileName());
+    }
+    
     activeSubjectInfield();
     activeDescriptionInfield();
     activeAssignedToInfield();
@@ -599,6 +663,9 @@ public class RedmineStepDialog extends BaseStepDialog implements StepDialogInter
     meta.setRedmineAllowDuplicates(wAllowDuplications.getSelection());
     meta.setRedmineSearchFieldStatus(wSearchFieldStatus.getSelection());
     meta.setRedmineSearchFieldSubject(wSearchFieldSubject.getSelection());
+    meta.setRedmineAttachFile(wAttachedFileCheckField.getSelection());
+    meta.setRedmineAttachFileContent(wAttachContentType.getText() );
+    meta.setRedmineAttachFileName(wAttachFilenameField.getText() );
     
     // close the SWT dialog window
     dispose();
@@ -622,12 +689,18 @@ public class RedmineStepDialog extends BaseStepDialog implements StepDialogInter
   		wRedmineAssignedTo.setEnabled( !wAssignedToInField.getSelection() );
   	}
   	
+  	private void activeAttachedFile() {
+    	wAttachContentType.setEnabled(wAttachedFileCheckField.getSelection());
+    	wAttachFilenameFieldLabel.setEnabled(wAttachedFileCheckField.getSelection());
+    	wAttachFilenameField.setEnabled(wAttachedFileCheckField.getSelection());
+  	}
   	
   	private void setStreamFields() {
   	    if ( !gotPreviousFields ) {
   	    	String subjectfield = wSubjectField.getText();
   	    	String descriptionfield = wDescriptionField.getText();
   	    	String assignedtofield = wAssignedToField.getText();
+  	    	String attachFilenameField = wAttachFilenameField.getText();
   	    	wSubjectField.removeAll();
   	    	
   	    	final Map<String, Integer> fields = new HashMap<String, Integer>();
@@ -651,6 +724,11 @@ public class RedmineStepDialog extends BaseStepDialog implements StepDialogInter
   	    	wAssignedToField.setItems( entries.toArray( new String[entries.size()] ) );
   	    	if ( assignedtofield != null ) {
   	    		wAssignedToField.setText( assignedtofield );
+  	    	}
+
+  	    	wAttachFilenameField.setItems( entries.toArray( new String[entries.size()] ) );
+  	    	if ( attachFilenameField != null ) {
+  	    		wAttachFilenameField.setText( attachFilenameField );
   	    	}
   	    	
   	    	gotPreviousFields = true;

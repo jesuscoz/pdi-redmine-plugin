@@ -36,6 +36,7 @@ public class RedmineStepData extends BaseStepData implements StepDataInterface {
 	public int indexOfSubjectField;
 	public int indexOfDescriptionField;
 	public int indexOfAssignedToField;
+	public int indexOfAttachedFileFilename;
 	
 	public RedmineStepData() {
 		super();
